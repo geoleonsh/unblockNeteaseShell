@@ -1,0 +1,2 @@
+# unblockNeteaseShell
+unblockNeteaseShell For MacOS
