@@ -4,13 +4,19 @@ UnblockPath=/Users/mosque/Fix/UnblockNeteaseMusic
 NodeBin=/Volumes/软件/usr/local/bin/node
 
 start(){
+grep -q "music.163.com" /etc/hosts
+if [ 0 -eq $? ];then
+  sed -i "" '/music.163.com/d' /etc/hosts
+fi
 exclude_ip=$(ping -c 1 music.163.com | grep -Eo "([0-9]{1,3}\.){3}[0-9]{1,3}" | uniq)
 echo "neteaseMusicIP:"$exclude_ip
+
 PID=($(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}'))
 if [ ${#PID[@])} -ge 1 ];then
   echo "Already Run!!!"
   exit 1
 fi
+
 $NodeBin $UnblockPath/app.js -p 80:443 -f $exclude_ip > /dev/null 2>&1 &
 echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
 }
