@@ -1,7 +1,14 @@
 #!/bin/bash
+#注意：本脚本只适应于MacOS，迁移到其它系统请注意sed等命令的使用不同
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-UnblockPath=/Users/mosque/Fix/UnblockNeteaseMusic
-NodeBin=/Volumes/软件/usr/local/bin/node
+#指定UnblockNeteaseMusic的目录
+Saved_UnblockPath=/Users/mosque/Fix
+
+#指定node二进制文件的路径
+Saved_NodeBin=/Volumes/软件/usr/local/bin/node
+
+#指定git仓库
+GitLab="https://github.com/nondanee/UnblockNeteaseMusic"
 
 start(){
 grep -q "music.163.com" /etc/hosts
@@ -13,35 +20,96 @@ echo "neteaseMusicIP:"$exclude_ip
 
 PID=($(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}'))
 if [ ${#PID[@])} -ge 1 ];then
-  echo "Already Run!!!"
+  echo "UnblockNeteaseMusic 已经在运行!!!"
   exit 1
 fi
 
-$NodeBin $UnblockPath/app.js -p 80:443 -f $exclude_ip > /dev/null 2>&1 &
+$Saved_NodeBin $Saved_UnblockPath/UnblockNeteaseMusic/app.js -p 80:443 -f $exclude_ip > /dev/null 2>&1 &
 echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
+if [ 0 -eq $? ];then
+  echo "UnblockNeteaseMusic启动成功!!!"
+  else
+    echo "UnblockNeteaseMusic启动失败!!!"
+fi
 }
 
 stop(){
   ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}' | xargs kill -9
   sed -i "" '/music.163.com/d' /etc/hosts
+  echo "UnblockNeteaseMusic关闭成功!!!"
 }
 
 update(){
-  cd $UnblockPath
-  git pull origin master && echo "Update Success"
+  cd $Saved_UnblockPath/UnblockNeteaseMusic
+  git pull origin master && echo "UnblockNeteaseMusic更新成功!!!"
 }
 
-case $1 in
-start)
+install(){
+echo -e "\033[31m请先自行安装NodeJS!!!\033[0m"
+read -rp "请输入安装路径(默认为~/，直接回车使用默认值)：" UnblockPath
+if [ -z $UnblockPath ];then
+  sed -i "" 's/^\(Saved_UnblockPath\=\)\(.*\)/\1~\//' $0
+else
+  sed -i "" "s#^\(Saved_UnblockPath\=\)\(.*\)#\1${UnblockPath}#" $0
+fi
+read -rp "请输入node程序路径(默认为node，直接回车使用默认值)：" NodeBin
+if [ -z $NodeBin ];then
+  sed -i "" 's/^\(Saved_NodeBin\=\)\(.*\)/\1node/' $0
+else
+  sed -i "" "s#^\(Saved_NodeBin\=\)\(.*\)#\1${NodeBin}#" $0
+fi
+
+ls $UnblockPath > /dev/null 2>&1
+if [ 0 -ne $? ];then
+  mkdir -p $UnblockPath
+fi
+
+cd $UnblockPath
+git clone $GitLab && echo "UnblockNeteaseMusic安装成功!!!"
+}
+
+uninstall(){
+  stop && rm -rf $Saved_UnblockPath/UnblockNeteaseMusic && echo "UnblockNeteaseMusic已卸载!!!"
+}
+
+cat <<EOF
+   网易云音乐解锁工具MacOS系统一键脚本
+西窗浪人倾情之作(https://www.bigxd.com)
+               _
+ ____  _____ _| |_ _____ _____  ___ _____
+|  _ \| ___ (_   _) ___ (____ |/___) ___ |
+| | | | ____| | |_| ____/ ___ |___ | ____|
+|_| |_|_____)  \__)_____)_____(___/|_____)
+
+选项：
+1.开始运行（需要sudo权限运行脚本）
+2.结束运行（需要sudo权限运行脚本）
+3.更新源码版本
+4.安装
+5.卸载（需要sudo权限运行脚本）
+
+注意：需要sudo权限运行的选项都是需要修改hosts文件的操作
+
+EOF
+read -rp "请输入操作选项(数字)：" selected
+
+case $selected in
+1)
   start
   ;;
-stop)
+2)
   stop
   ;;
-update)
+3)
   update
   ;;
+4)
+  install
+  ;;
+5)
+  uninstall
+  ;;
 *)
-  echo "Usage: start| stop| update"
+  echo "输入的选项无法识别!!!"
   ;;
 esac
