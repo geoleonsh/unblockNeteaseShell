@@ -14,6 +14,7 @@ start(){
 grep -q "music.163.com" /etc/hosts
 if [ 0 -eq $? ];then
   sed -i "" '/music.163.com/d' /etc/hosts
+  killall -HUP mDNSResponder
 fi
 exclude_ip=$(ping -c 1 music.163.com | grep -Eo "([0-9]{1,3}\.){3}[0-9]{1,3}" | uniq)
 echo "neteaseMusicIP:"$exclude_ip
@@ -37,6 +38,10 @@ stop(){
   ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}' | xargs kill -9
   sed -i "" '/music.163.com/d' /etc/hosts
   echo "UnblockNeteaseMusic关闭成功!!!"
+}
+
+restart(){
+stop && start
 }
 
 update(){
@@ -84,9 +89,10 @@ cat <<EOF
 选项：
 1.开始运行（需要sudo权限运行脚本）
 2.结束运行（需要sudo权限运行脚本）
-3.更新源码版本
-4.安装
-5.卸载（需要sudo权限运行脚本）
+3.重新启动（需要sudo权限运行脚本）
+4.更新源码版本
+5.安装
+6.卸载（需要sudo权限运行脚本）
 
 注意：需要sudo权限运行的选项都是需要修改hosts文件的操作
 
@@ -101,12 +107,15 @@ case $selected in
   stop
   ;;
 3)
-  update
+  restart
   ;;
 4)
-  install
+  update
   ;;
 5)
+  install
+  ;;
+6)
   uninstall
   ;;
 *)
