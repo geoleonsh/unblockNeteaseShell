@@ -1,5 +1,5 @@
 # unblockNeteaseShell
-unblockNeteaseShell For MacOS
+unblockNeteaseShell For Unbuntu
 使用原理参见此文：
 https://github.com/nondanee/UnblockNeteaseMusic/issues/597
 
@@ -7,7 +7,7 @@ https://github.com/nondanee/UnblockNeteaseMusic/issues/597
 
 使用方法：直接运行脚本  
 
-   网易云音乐解锁工具MacOS系统一键脚本  
+   网易云音乐解锁工具Ubuntu系统一键脚本  
 西窗浪人倾情之作(https://www.bigxd.com)  
 
 选项：  
