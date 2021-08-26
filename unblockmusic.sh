@@ -2,10 +2,10 @@
 #注意：本脚本只适应于MacOS，迁移到其它系统请注意sed等命令的使用不同
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 #指定UnblockNeteaseMusic的目录
-Saved_UnblockPath=/Users/mosque/Fix
+Saved_UnblockPath=/develop/crack163music
 
 #指定node二进制文件的路径
-Saved_NodeBin=/Volumes/软件/usr/local/bin/node
+Saved_NodeBin=node
 
 #指定git仓库
 GitLab="https://github.com/nondanee/UnblockNeteaseMusic"
@@ -13,14 +13,15 @@ GitLab="https://github.com/nondanee/UnblockNeteaseMusic"
 start(){
 grep -q "music.163.com" /etc/hosts
 if [ 0 -eq $? ];then
-  sed -i "" '/music.163.com/d' /etc/hosts
-  killall -HUP mDNSResponder
+  sed -i '/music.163.com/d' /etc/hosts
+#  killall -HUP mDNSResponder
+  systemd-resolve --flush-caches
 fi
 exclude_ip=$(ping -c 1 music.163.com | grep -Eo "([0-9]{1,3}\.){3}[0-9]{1,3}" | uniq)
 echo "neteaseMusicIP:"$exclude_ip
 
 PID=($(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}'))
-if [ ${#PID[@])} -ge 1 ];then
+if [ -n "${PID}" ];then
   echo "UnblockNeteaseMusic 已经在运行!!!"
   echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
   exit 1
@@ -36,8 +37,11 @@ fi
 }
 
 stop(){
-  ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}' | xargs kill -9
-  sed -i "" '/music.163.com/d' /etc/hosts
+  PID=$(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}')
+  if [ -n "$PID" ];then
+    kill -9 $PID
+  fi
+  sed -i '/music.163.com/d' /etc/hosts
   echo "UnblockNeteaseMusic关闭成功!!!"
 }
 
@@ -54,15 +58,15 @@ install(){
 echo -e "\033[31m请先自行安装NodeJS!!!\033[0m"
 read -rp "请输入安装路径(默认为~/，直接回车使用默认值)：" UnblockPath
 if [ -z $UnblockPath ];then
-  sed -i "" 's/^\(Saved_UnblockPath\=\)\(.*\)/\1~\//' $0
+  sed -i 's/^\(Saved_UnblockPath\=\)\(.*\)/\1~\//' $0
 else
-  sed -i "" "s#^\(Saved_UnblockPath\=\)\(.*\)#\1${UnblockPath}#" $0
+  sed -i "s#^\(Saved_UnblockPath\=\)\(.*\)#\1${UnblockPath}#" $0
 fi
 read -rp "请输入node程序路径(默认为node，直接回车使用默认值)：" NodeBin
 if [ -z $NodeBin ];then
-  sed -i "" 's/^\(Saved_NodeBin\=\)\(.*\)/\1node/' $0
+  sed -i 's/^\(Saved_NodeBin\=\)\(.*\)/\1node/' $0
 else
-  sed -i "" "s#^\(Saved_NodeBin\=\)\(.*\)#\1${NodeBin}#" $0
+  sed -i "s#^\(Saved_NodeBin\=\)\(.*\)#\1${NodeBin}#" $0
 fi
 
 ls $UnblockPath > /dev/null 2>&1
