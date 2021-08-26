@@ -1,5 +1,5 @@
 #!/bin/bash
-#注意：本脚本只适应于MacOS，迁移到其它系统请注意sed等命令的使用不同
+#注意：本脚本只适应于Ubuntu，迁移到其它系统请注意sed等命令的使用不同
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 #指定UnblockNeteaseMusic的目录
 Saved_UnblockPath=/develop/crack163music
@@ -83,7 +83,7 @@ uninstall(){
 }
 
 cat <<EOF
-   网易云音乐解锁工具MacOS系统一键脚本
+   网易云音乐解锁工具Ubuntu系统一键脚本
 西窗浪人倾情之作(https://www.bigxd.com)
                _
  ____  _____ _| |_ _____ _____  ___ _____
