@@ -22,6 +22,7 @@ echo "neteaseMusicIP:"$exclude_ip
 PID=($(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}'))
 if [ ${#PID[@])} -ge 1 ];then
   echo "UnblockNeteaseMusic 已经在运行!!!"
+  echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
   exit 1
 fi
 
