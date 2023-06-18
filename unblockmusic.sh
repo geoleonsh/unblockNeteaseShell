@@ -5,7 +5,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 Saved_UnblockPath=/Users/mosque/Fix
 
 #指定node二进制文件的路径
-Saved_NodeBin=/Volumes/软件/usr/local/bin/node
+Saved_NodeBin=node
 
 #指定git仓库
 GitLab="https://github.com/nondanee/UnblockNeteaseMusic"
@@ -22,11 +22,10 @@ echo "neteaseMusicIP:"$exclude_ip
 PID=($(ps -ef | grep "NeteaseMusic/app.js" | grep -v grep | awk '{print $2}'))
 if [ ${#PID[@])} -ge 1 ];then
   echo "UnblockNeteaseMusic 已经在运行!!!"
-  echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
   exit 1
 fi
 
-$Saved_NodeBin $Saved_UnblockPath/UnblockNeteaseMusic/app.js -p 80:443 -f $exclude_ip > /dev/null 2>&1 &
+$Saved_NodeBin $Saved_UnblockPath/UnblockNeteaseMusic/app.js -p 80:443 -e https://music.163.com -f $exclude_ip > /dev/null 2>&1 &
 echo -e "127.0.0.1 music.163.com\n127.0.0.1 interface.music.163.com" >> /etc/hosts
 if [ 0 -eq $? ];then
   echo "UnblockNeteaseMusic启动成功!!!"
